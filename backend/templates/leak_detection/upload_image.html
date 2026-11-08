@@ -1,0 +1,232 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Upload Image</h2>
+        <p class="text-muted fs-5 max-w-md mx-auto">Add a new photo to your Secure Vault to monitor it for privacy leaks across the web.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-7">
+        <div class="card-premium">
+            <div class="card-body p-4">
+                <!-- Tab Headers -->
+                <ul class="nav nav-pills nav-justified mb-4 p-1 bg-light rounded-pill" id="uploadTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active rounded-pill fw-bold" id="file-tab" data-bs-toggle="pill" data-bs-target="#file-upload" type="button">
+                            <i class="fa-solid fa-file-arrow-up me-2"></i>File Upload
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill fw-bold" id="camera-tab" data-bs-toggle="pill" data-bs-target="#camera-upload" type="button">
+                            <i class="fa-solid fa-camera me-2"></i>Camera Capture
+                        </button>
+                    </li>
+                </ul>
+
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    
+                    <div class="tab-content" id="uploadTabContent">
+                        <!-- File Upload Tab -->
+                        <div class="tab-pane fade show active" id="file-upload">
+                            <div class="upload-zone text-center mb-4 cursor-pointer position-relative" id="dropZone">
+                                <div id="filePreviewContainer" class="d-none">
+                                    <img id="filePreview" class="rounded shadow-sm mb-3" style="max-height: 200px; max-width: 100%; object-fit: contain;">
+                                    <p class="text-primary fw-bold mb-0" id="fileNameDisplay"></p>
+                                </div>
+                                <div id="uploadPrompt">
+                                    <i class="fa-solid fa-file-arrow-up text-primary mb-3" style="font-size: 3rem;"></i>
+                                    <h5 class="fw-bold mb-2">Drag and drop your image here</h5>
+                                    <p class="text-muted small mb-0">or click to browse your files (JPG, PNG)</p>
+                                </div>
+                                <input class="form-control" type="file" id="imageInput" name="image" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                            </div>
+                        </div>
+
+                        <!-- Camera Tab -->
+                        <div class="tab-pane fade" id="camera-upload">
+                            <div class="camera-container text-center mb-4">
+                                <div id="cameraPreviewWrapper" class="position-relative bg-dark rounded-4 overflow-hidden mb-3" style="aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;">
+                                    <video id="video" autoplay playsinline class="w-100 h-100" style="object-fit: cover; transform: scaleX(-1);"></video>
+                                    <canvas id="canvas" class="d-none"></canvas>
+                                    <div id="countdown" class="position-absolute top-50 left-50 translate-middle text-white fw-bold d-none" style="font-size: 5rem; text-shadow: 0 0 20px rgba(0,0,0,0.5);"></div>
+                                    
+                                    <!-- Permission Required Overlay -->
+                                    <div id="cameraPlaceholder" class="text-white p-4">
+                                        <i class="fa-solid fa-camera-slash mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                                        <h5 class="fw-bold">Camera Access Required</h5>
+                                        <p class="text-muted small mb-3">Please click the button below to grant permission.</p>
+                                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-4" id="startCameraBtn">
+                                            Enable Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-dark rounded-pill px-4 d-none" id="captureBtn">
+                                        <i class="fa-solid fa-circle me-1"></i> Capture Photo
+                                    </button>
+                                    <button type="button" class="btn btn-outline-dark rounded-pill px-4 d-none" id="retakeBtn">
+                                        <i class="fa-solid fa-rotate-left me-1"></i> Retake
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-premium btn-lg w-100 py-3 fs-5" id="submitBtn">
+                            <i class="fa-solid fa-shield-halved me-2"></i> Secure & Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-4 text-muted small">
+            <p><i class="fa-solid fa-lock text-success me-1"></i> Your photos are encrypted and never shared. They are used exclusively for monitoring your privacy.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+    }
+    .nav-pills .nav-link {
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+    .camera-container {
+        min-height: 250px;
+    }
+    #video {
+        background-color: #000;
+        transition: opacity 0.3s ease;
+    }
+    .flash-effect {
+        animation: flash 0.3s ease-out;
+    }
+    @keyframes flash {
+        0% { background-color: #fff; }
+        100% { background-color: transparent; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    const imageInput = document.getElementById('imageInput');
+    const filePreview = document.getElementById('filePreview');
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const uploadForm = document.getElementById('uploadForm');
+
+    let stream = null;
+
+    // --- File Upload Logic ---
+    imageInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            showFilePreview(file);
+        }
+    });
+
+    function showFilePreview(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            filePreview.src = e.target.result;
+            filePreviewContainer.classList.remove('d-none');
+            uploadPrompt.classList.add('d-none');
+            fileNameDisplay.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- Camera Logic ---
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" }, 
+                audio: false 
+            });
+            video.srcObject = stream;
+            cameraPlaceholder.classList.add('d-none');
+            captureBtn.classList.remove('d-none');
+            video.classList.remove('d-none');
+        } catch (err) {
+            console.error("Camera access denied or not available:", err);
+            alert("Could not access camera. Please ensure you have granted permission.");
+        }
+    }
+
+    startCameraBtn.addEventListener('click', startCamera);
+
+    // Stop camera when switching tabs
+    document.getElementById('file-tab').addEventListener('click', () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            video.srcObject = null;
+            cameraPlaceholder.classList.remove('d-none');
+            captureBtn.classList.add('d-none');
+            retakeBtn.classList.add('d-none');
+        }
+    });
+
+    captureBtn.addEventListener('click', function() {
+        // Flash effect
+        const wrapper = document.getElementById('cameraPreviewWrapper');
+        const flashOverlay = document.createElement('div');
+        flashOverlay.className = 'position-absolute w-100 h-100 flash-effect';
+        wrapper.appendChild(flashOverlay);
+        setTimeout(() => flashOverlay.remove(), 300);
+
+        // Capture
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        
+        // Horizontal flip to match mirrored preview
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Show result
+        video.classList.add('d-none');
+        canvas.classList.remove('d-none');
+        captureBtn.classList.add('d-none');
+        retakeBtn.classList.remove('d-none');
+
+        // Convert dataUrl to File object for the hidden input
+        fetch(dataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], "captured_photo.jpg", { type: "image/jpeg" });
+                const container = new DataTransfer();
+                container.items.add(file);
+                imageInput.files = container.files;
+            });
+    });
+
+    retakeBtn.addEventListener('click', function() {
+        video.classList.remove('d-none');
+        canvas.classList.add('d-none');
+        captureBtn.classList.remove('d-none');
+        retakeBtn.classList.add('d-none');
+        imageInput.value = ''; // Clear the input
+    });
+});
+</script>
+{% endblock %}

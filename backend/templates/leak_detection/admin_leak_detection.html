@@ -1,0 +1,260 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block title %}Manage Analysis | Privacy Protection{% endblock %}
+
+{% block content %}
+<div class="row mb-5 fade-in-up">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Investigation Control: <span class="text-primary">{{ target_user.fullname|default:target_user.email }}</span></h2>
+            <p class="text-muted mb-0">Deep-scan forensic analysis of user data across global platforms.</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-premium px-4">
+            <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Statistical Summary Row -->
+<div class="row mb-5 fade-in-up" style="animation-delay: 0.1s;">
+    <div class="col-md-4">
+        <div class="card card-premium p-4 border-0 mb-4" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Evidence Base</h6>
+                    <h3 class="fw-800 mb-0">{{ images.count }} Assets</h3>
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-circle">
+                    <i class="fa-solid fa-images fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-premium p-4 border-0 mb-4" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Active Scans</h6>
+                    <h3 class="fw-800 mb-0">{{ results.count }} Results</h3>
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-circle">
+                    <i class="fa-solid fa-microscope fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-premium p-4 border-0 mb-4" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Breaches Found</h6>
+                    <h3 class="fw-800 mb-0">
+                        {% if leak_count > 0 %}
+                            {{ leak_count }} Detected
+                        {% else %}
+                            0 Leaks
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-circle">
+                    <i class="fa-solid fa-radiation fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in-up" style="animation-delay: 0.2s;">
+    <!-- Asset Library -->
+    <div class="col-lg-4 mb-4">
+        <div class="card card-premium border-0 shadow-sm h-100">
+            <div class="card-header-premium d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-folder-open me-2 text-primary"></i> Asset Library</h5>
+                <span class="badge bg-light text-primary border px-2">{{ images.count }}</span>
+            </div>
+            <div class="p-4">
+                <div class="asset-grid">
+                    {% for img in images %}
+                        <div class="asset-item mb-3 p-2 bg-light rounded-4 d-flex align-items-center transition-all hover-translate-y">
+                            <div class="img-container shadow-sm me-3" style="width: 60px; height: 60px; border-radius: 12px; border: 2px solid white;">
+                                <img src="{{ img.image.url }}" class="w-100 h-100 object-fit-cover">
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark small" style="line-height: 1.2;">Evidence #{{ forloop.counter }}</div>
+                                <div class="text-muted smaller mt-1">Uploaded {{ img.uploaded_at|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="ms-auto pe-1">
+                                <a href="{% url 'admin_run_scan' img.id %}" class="btn btn-sm btn-outline-premium rounded-pill px-3" title="Scan This Asset">
+                                    <i class="fa-solid fa-radar me-1"></i> Scan
+                                </a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-image-slash fs-1 text-muted opacity-25 mb-3"></i>
+                            <p class="text-muted small">No source images available.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if images %}
+                <div class="p-4 pt-0">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% comment %} <button type="submit" class="btn btn-premium w-100 rounded-pill py-3 shadow-lg">
+                            <i class="fa-solid fa-magnifying-glass-chart me-2"></i> Execute Full Forensic Scan
+                        </button> {% endcomment %}
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Analysis Results -->
+    <div class="col-lg-8 mb-4">
+        <div class="card card-premium border-0 shadow-sm h-100">
+            <div class="card-header-premium d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-bolt-lightning me-2 text-warning"></i> Real-time Analytics</h5>
+                {% if results %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-700">
+                        Scan ID: #F{{ target_user.id }}X{{ results.count }}
+                    </span>
+                {% endif %}
+            </div>
+            <div class="p-0">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-premium align-middle mb-0" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4" style="width: 15%;">Result Status</th>
+                                    <th scope="col" class="py-3 px-2 text-center" style="width: 15%;">ORIGINAL<br>ASSET</th>
+                                    <th scope="col" class="py-3 px-2 text-center" style="width: 15%;">TARGET<br>PLATFORM</th>
+                                    <th scope="col" class="py-3 px-2 text-center" style="width: 20%;">RECOGNITION<br>SCORE & DATE</th>
+                                    <th scope="col" class="py-3 px-2 text-center" style="width: 35%;">EVIDENCE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for res in results %}
+                                    <tr class="{% if res.is_leaked %}leak-row{% endif %}">
+                                        <td class="ps-4" style="width: 15%;">
+                                            {% if res.is_leaked %}
+                                                <span class="badge-premium-danger" style="font-size: 0.7rem;">
+                                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> BREACHED
+                                                </span>
+                                            {% else %}
+                                                <span class="badge-premium-success" style="font-size: 0.7rem;">
+                                                    <i class="fa-solid fa-shield-check me-1"></i> SECURE
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <img src="{{ res.target_image.image.url }}" class="rounded shadow-sm" style="width: 45px; height: 45px; object-fit: cover;" title="Original Uploaded Evidence">
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="fw-bold text-dark">{{ res.source_app_name }}</div>
+                                            <div class="text-muted smaller">Global Web Crawler</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column align-items-center mx-auto" style="max-width: 100px;">
+                                                <div class="d-flex justify-content-between w-100 mb-1">
+                                                    <span class="smaller fw-bold text-muted">Match</span>
+                                                    <span class="smaller fw-800 {% if res.confidence_score > 80 %}text-danger{% else %}text-primary{% endif %}">{{ res.confidence_score }}%</span>
+                                                </div>
+                                                <div class="progress progress-premium w-100 mb-1" style="height: 5px;">
+                                                    <div class="progress-bar {% if res.confidence_score > 80 %}bg-danger{% else %}bg-primary{% endif %}" 
+                                                         style="width: {{ res.confidence_score }}%"></div>
+                                                </div>
+                                                <div class="text-muted w-100 text-start" style="font-size: 0.65rem;">
+                                                    {{ res.scan_date|date:"M d, Y" }}
+                                                    <br>{{ res.scan_date|time:"H:i" }} — Log
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            {% if res.is_leaked %}
+                                                <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                                                    <a href="{{ res.matched_image_path }}" target="_blank" class="btn btn-light btn-sm rounded-pill px-2 border-0 transition-all hover-danger text-nowrap" style="font-size: 0.75rem;">
+                                                        <i class="fa-solid fa-eye me-1"></i> View Leak
+                                                    </a>
+                                                    <button class="btn btn-dark btn-sm rounded-pill px-2 border-0 transition-all text-nowrap" data-bs-toggle="modal" data-bs-target="#adminMaskModal{{ res.id }}" style="font-size: 0.75rem;">
+                                                        <i class="fa-solid fa-mask me-1"></i> Mask Asset
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted smaller opacity-50">—</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 my-5">
+                        <div class="bg-light p-4 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 120px; height: 120px;">
+                            <i class="fa-solid fa-fingerprint fs-1 text-muted opacity-50"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">No Analysis Logs Found</h4>
+                        <p class="text-muted mx-auto" style="max-width: 400px;">Execute a Forensic Scan using the evidence provided in the Asset Library to begin investigation.</p>
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-premium px-5 rounded-pill">
+                                Initiate Initial Investigation
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS Styles -->
+<style>
+    .fw-800 { font-weight: 800; }
+    .smaller { font-size: 0.8rem; }
+    .transition-all { transition: all 0.3s ease; }
+    .hover-translate-y:hover { transform: translateY(-3px); }
+    .hover-danger:hover { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
+    
+    .leak-row { background: rgba(239, 68, 68, 0.02) !important; }
+    
+    .asset-item { border: 1px solid transparent; }
+    .asset-item:hover { border-color: rgba(99, 102, 241, 0.2); background: white !important; }
+
+    .progress-premium { background-color: rgba(0,0,0,0.05); }
+</style>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Render Modals Outside ALL layout containers -->
+{% if results %}
+    {% for res in results %}
+        {% if res.is_leaked %}
+        <div class="modal fade text-start" id="adminMaskModal{{ res.id }}" tabindex="-1" aria-labelledby="adminMaskModalLabel{{ res.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-dark text-white border-0">
+                        <h5 class="modal-title" id="adminMaskModalLabel{{ res.id }}"><i class="fa-solid fa-shield-halved me-2"></i>Enforce Masking</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <p>You are about to enforce a masking protocol on the intercepted asset found on <strong>{{ res.source_app_name }}</strong>.</p>
+                        <p class="text-danger small mb-0"><i class="fa-solid fa-triangle-exclamation me-1"></i> This action actively modifies the remote asset footprint.</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <a href="{% url 'mask_image' res.id %}" class="btn btn-danger rounded-pill px-4 text-white">
+                            <i class="fa-solid fa-check me-1"></i> Execute Protocol
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

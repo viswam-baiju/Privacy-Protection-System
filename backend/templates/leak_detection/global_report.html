@@ -1,0 +1,138 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block title %}System Leak Report | Privacy Protection{% endblock %}
+
+{% block content %}
+<div class="row mb-5 fade-in-up">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Global Privacy Reports</h2>
+            <p class="text-muted mb-0">Cross-platform overview of all detected image privacy breaches.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-premium px-4" onclick="window.print()">
+                <i class="fa-solid fa-file-export me-2"></i> Export Data
+            </button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-premium px-4">
+                <i class="fa-solid fa-chart-pie me-2"></i> Summary
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if results %}
+<div class="row fade-in-up" style="animation-delay: 0.1s;">
+    <div class="col-12">
+        <div class="card card-premium border-0 shadow-sm">
+            <div class="card-header-premium d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-danger fw-bold"><i class="fa-solid fa-cloud-bolt me-2"></i> Active Privacy Breaches</h5>
+                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-700">
+                    {{ results.count }} Detected Leaks
+                </span>
+            </div>
+            <div class="p-0">
+                <div class="table-responsive">
+                    <table class="table table-premium align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">User & Identity</th>
+                                <th>Source App</th>
+                                <th class="text-center">Detection Confidence</th>
+                                <th>Severity</th>
+                                <th>Discovered</th>
+                                {% comment %} <th class="text-end pe-4">Analysis</th> {% endcomment %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in results %}
+                                {% if res.is_leaked %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="img-container me-3 shadow-sm border border-2 border-white" style="width: 48px; height: 48px; border-radius: 12px;">
+                                                <img src="{{ res.target_image.image.url }}" class="w-100 h-100 object-fit-cover">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ res.user.fullname|default:res.user.email }}</div>
+                                                <div class="text-muted small">@{{ res.user.email|slice:":8" }}...</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if 'Social' in res.source_app_name %}
+                                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-600">
+                                                <i class="fa-brands fa-instagram me-1"></i> {{ res.source_app_name }}
+                                            </span>
+                                        {% elif 'News' in res.source_app_name %}
+                                            <span class="badge bg-warning bg-opacity-10 text-dark px-3 py-2 rounded-pill fw-600">
+                                                <i class="fa-solid fa-newspaper me-1"></i> {{ res.source_app_name }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-600">
+                                                <i class="fa-solid fa-heart me-1"></i> {{ res.source_app_name }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fw-800 text-dark mb-1" style="font-size: 1.1rem;">{{ res.confidence_score }}%</span>
+                                            <div class="progress progress-premium w-75" style="height: 6px;">
+                                                <div class="progress-bar {% if res.confidence_score > 80 %}bg-danger{% else %}bg-warning{% endif %}" 
+                                                     style="width: {{ res.confidence_score }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge-premium-danger">
+                                            <i class="fa-solid fa-circle-exclamation me-1 small"></i> Critical
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark small fw-500">{{ res.scan_date|date:"M d, Y" }}</div>
+                                        <div class="text-muted x-small">{{ res.scan_date|date:"H:i" }} — {{ res.scan_date|timesince }} ago</div>
+                                    </td>
+                                    {% comment %} <td class="text-end pe-4">
+                                        <a href="{% url 'admin_leak_detection' res.user.id %}" class="btn btn-light btn-sm rounded-circle p-2 text-muted" title="View Full Analysis">
+                                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                        </a>
+                                    </td> {% endcomment %}
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row fade-in-up">
+    <div class="col-12">
+        <div class="card card-premium p-5 text-center border-0">
+            <div class="mb-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                    <i class="fa-solid fa-shield-check fs-1 text-success"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark">System Secure</h3>
+            <p class="text-muted mx-auto" style="max-width: 400px;">No privacy leaks have been detected across any of the monitored third-party platforms. Systems are healthy.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .fw-500 { font-weight: 500; }
+    .fw-600 { font-weight: 600; }
+    .fw-700 { font-weight: 700; }
+    .fw-800 { font-weight: 800; }
+    .x-small { font-size: 0.75rem; }
+    
+    @media print {
+        .navbar, .btn, .btn-premium, .btn-outline-premium { display: none !important; }
+        .card-premium { box-shadow: none !important; border: 1px solid #eee !important; }
+        body { background: white !important; padding: 0 !important; }
+    }
+</style>
+{% endblock %}

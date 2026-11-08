@@ -1,0 +1,60 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block title %}Submit Complaint | Privacy Protection{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in-up">
+    <div class="col-lg-6">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-2">Support & Feedback</h2>
+            <p class="text-muted">Encountered an issue or have a concern? Our administrative team is here to help.</p>
+        </div>
+        
+        <div class="card card-premium border-0 shadow-lg overflow-hidden">
+            <div class="card-header-premium p-4">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="fa-solid fa-file-signature me-3 text-primary"></i>
+                    Formal Complaint Submission
+                </h5>
+            </div>
+            <div class="p-5">
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="subject" class="form-label fw-bold text-dark small text-uppercase">Subject / Issue Title</label>
+                        <input type="text" name="subject" id="subject" class="form-control rounded-pill border-2 px-4 py-2" placeholder="Briefly describe the issue" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-bold text-dark small text-uppercase">Detailed Description</label>
+                        <textarea name="description" id="description" rows="5" class="form-control rounded-4 border-2 px-4 py-3" placeholder="Provide as much detail as possible to help our investigators..." required></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info border-0 rounded-4 p-3 bg-opacity-10 mb-4">
+                        <div class="d-flex">
+                            <i class="fa-solid fa-circle-info fs-5 me-3 text-info"></i>
+                            <div class="small text-info">
+                                <strong>Privacy Notice:</strong> Your submission will be handled by the security officer team. All reports are treated as confidential.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-premium w-100 rounded-pill py-3 shadow-lg fw-bold transition-all hover-translate-y">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Submit Formal Complaint
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'user_view_complaints' %}" class="text-muted small text-decoration-none transition-all hover-primary">
+                <i class="fa-solid fa-chevron-left me-1"></i> Return to My Complaints
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-translate-y:hover { transform: translateY(-3px); }
+    .form-control:focus { border-color: #6366f1; box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.1); }
+</style>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block title %}My Complaints | Privacy Protection{% endblock %}
+
+{% block content %}
+<div class="row fade-in-up">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-envelope-open-text me-2 text-primary"></i>My Complaints</h2>
+            <p class="text-muted mb-0">Track the status of your reported issues and inquiries.</p>
+        </div>
+        <a href="{% url 'add_complaint' %}" class="btn btn-premium rounded-pill px-4 shadow-sm hover-translate-y transition-all">
+            <i class="fa-solid fa-plus me-2"></i> File New Complaint
+        </a>
+    </div>
+
+    <div class="col-12 mt-2">
+        {% if user_complaints %}
+            <div class="card card-premium border-0 shadow-sm overflow-hidden">
+                <div class="card-header-premium p-3 border-bottom text-muted fw-bold small text-uppercase" style="background: rgba(0,0,0,0.02);">
+                    <div class="row align-items-center px-2">
+                        <div class="col-2">Status</div>
+                        <div class="col-2">Date</div>
+                        <div class="col-3">Subject</div>
+                        <div class="col-5">Description</div>
+                    </div>
+                </div>
+                
+                <div class="list-group list-group-flush">
+                    {% for complaint in user_complaints %}
+                        <div class="list-group-item p-4 border-bottom asset-item transition-all" style="background: transparent;">
+                            <div class="row align-items-center">
+                                <div class="col-2">
+                                    <span class="badge 
+                                        {% if complaint.status == 'open' %}bg-primary
+                                        {% elif complaint.status == 'in_progress' %}bg-warning text-dark
+                                        {% else %}bg-success{% endif %} rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                                        <i class="fa-solid 
+                                            {% if complaint.status == 'open' %}fa-envelope
+                                            {% elif complaint.status == 'in_progress' %}fa-spinner fa-spin
+                                            {% else %}fa-check-circle{% endif %} me-1"></i>
+                                        {{ complaint.get_status_display|default:complaint.status|title }}
+                                    </span>
+                                </div>
+                                <div class="col-2 text-muted small fw-500">
+                                    <i class="fa-regular fa-calendar me-1"></i>{{ complaint.created_at|date:"M d, Y" }}
+                                </div>
+                                <div class="col-3 fw-bold text-dark text-truncate" title="{{ complaint.subject }}">
+                                    {{ complaint.subject }}
+                                </div>
+                                <div class="col-5 text-muted small text-truncate" title="{{ complaint.description }}">
+                                    {{ complaint.description }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="card card-premium border-0 shadow-sm text-center py-5 mt-4">
+                <div class="py-5">
+                    <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-4" style="width: 80px; height: 80px;">
+                        <i class="fa-solid fa-folder-open fs-2 text-muted opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">No Complaints History</h5>
+                    <p class="text-muted mb-4">You haven't submitted any complaints or inquiries yet.</p>
+                    <a href="{% url 'add_complaint' %}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="fa-solid fa-plus me-1"></i> File First Complaint
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .hover-translate-y:hover { transform: translateY(-3px); }
+    .asset-item:hover { background-color: rgba(99, 102, 241, 0.03) !important; cursor: default; }
+    .fw-500 { font-weight: 500; }
+</style>
+{% endblock %}

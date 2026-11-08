@@ -1,0 +1,105 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block title %}Security Officers | Privacy Protection{% endblock %}
+
+{% block content %}
+<div class="row mb-5 fade-in-up">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Security Officers</h2>
+            <p class="text-muted">Manage your administrative team and system investigators.</p>
+        </div>
+        <button type="button" class="btn btn-premium px-4" data-bs-toggle="modal" data-bs-target="#addOfficerModal">
+            <i class="fa-solid fa-user-plus me-2"></i> Add Officer
+        </button>
+    </div>
+</div>
+
+<div class="row fade-in-up" style="animation-delay: 0.1s;">
+    <div class="col-12">
+        <div class="card card-premium border-0 shadow-sm">
+            <div class="card-header-premium d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa-solid fa-user-shield me-2 text-success"></i> Officer Directory</h5>
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">{{ officers.count }} Total</span>
+            </div>
+            <div class="p-4">
+                <div class="table-responsive">
+                    <table class="table table-premium align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Officer Details</th>
+                                <th>Contact Information</th>
+                                <th>Station</th>
+                                <th>Status</th>
+                                <th>Onboarded Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in officers %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3 text-success" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fa-solid fa-shield-halved"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ o.fullname }}</div>
+                                                <div class="text-muted small">Officer ID: #{{ o.id }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mb-1"><i class="fa-solid fa-envelope me-2 text-muted small"></i>{{ o.email }}</div>
+                                        <div class="small"><i class="fa-solid fa-phone me-2 text-muted small"></i>{{ o.phone|default:"Not Provided" }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="mb-1"><i class="fa-solid fa-location-dot me-2 text-muted small"></i>{{ o.place }}</div>
+                                    </td>
+                                    <td>
+                                        {% if o.is_active %}
+                                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                                                <i class="fa-solid fa-circle-check me-1 small"></i> Active staff
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                                                <i class="fa-solid fa-circle-xmark me-1 small"></i> Blocked
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">{{ o.date_joined|date:"M d, Y" }}</div>
+                                        <div class="text-muted small">{{ o.date_joined|timesince }} ago</div>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{% url 'toggle_user_status' o.id %}" class="btn {% if o.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} btn-sm rounded-pill px-4 fw-bold shadow-sm">
+                                                {% if o.is_active %}
+                                                    <i class="fa-solid fa-user-lock me-1"></i> Block
+                                                {% else %}
+                                                    <i class="fa-solid fa-user-check me-1"></i> Unblock
+                                                {% endif %}
+                                            </a>
+                                           
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="fa-solid fa-user-slash fs-1 text-muted opacity-25"></i>
+                                        </div>
+                                        <h5 class="text-muted">No security officers registered yet.</h5>
+                                        <p class="small text-muted mb-0">Officers added to the system will appear here.</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

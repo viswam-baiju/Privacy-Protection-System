@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #ec4899;
+    --bg-color: #f3f4f6;
+    --surface-color: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --border-color: #e5e7eb;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+/* Glassmorphism Navbar */
+.nav-premium {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    padding: 1rem 0;
+}
+
+.nav-premium .navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-premium .nav-link {
+    color: var(--text-main) !important;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    margin: 0 0.25rem;
+}
+
+.nav-premium .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Premium Cards */
+.card-premium {
+    background: var(--surface-color);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.card-header-premium {
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+.card-header-premium h4, 
+.card-header-premium h5 {
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+/* Premium Buttons */
+.btn-premium {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.35);
+    color: white;
+}
+
+.btn-outline-premium {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+    border-radius: 8px;
+    padding: 0.5rem 1.4rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-premium:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+}
+
+/* Animations */
+.fade-in-up {
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Image Container */
+.img-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.img-container img {
+    transition: transform 0.5s ease;
+}
+
+.img-container:hover img {
+    transform: scale(1.05);
+}
+
+/* Status Badges */
+.badge-premium-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.badge-premium-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Tables */
+.table-premium {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    background: transparent;
+}
+
+.table-premium tbody tr {
+    background: var(--surface-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.table-premium tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.table-premium td {
+    border: none;
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+.table-premium td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.table-premium td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.table-premium th {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 1.5rem;
+}
+
+/* Progress bar */
+.progress-premium {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 10px;
+    overflow: visible;
+}
+
+.progress-premium .progress-bar {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Upload zone */
+.upload-zone {
+    border: 2px dashed var(--primary-color);
+    background-color: rgba(99, 102, 241, 0.03);
+    border-radius: 16px;
+    padding: 3rem;
+    transition: all 0.3s ease;
+}
+.upload-zone:hover {
+    background-color: rgba(99, 102, 241, 0.08);
+    border-color: var(--primary-hover);
+}
+
+/* Anti-screenshot & Security Measures */
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+.no-print {
+    display: none !important;
+}
+@media print {
+    body {
+        display: none !important;
+    }
+}

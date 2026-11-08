@@ -1,0 +1,120 @@
+{% extends 'leak_detection/base.html' %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-12">
+        <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-magnifying-glass-location text-primary me-2"></i>Scan For Leaks</h2>
+        <p class="text-muted fs-5">Select an image to scan across suspected third-party platforms to detect privacy breaches.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Image Selection Sidebar -->
+    <div class="col-md-4 mb-4">
+        <div class="card-premium h-100">
+            <div class="card-header-premium bg-light">
+                <h5 class="mb-0"><i class="fa-regular fa-folder-open me-2 text-primary"></i>Your Vault</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush border-0">
+                    {% for img in images %}
+                        <div class="list-group-item border-0 border-bottom py-3 hover-bg-light transition-all">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ img.image.url }}" class="rounded shadow-sm me-3" style="width: 70px; height: 70px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <small class="d-block text-muted mb-2"><i class="fa-regular fa-clock me-1"></i>{{ img.uploaded_at|date:"M d, Y" }}</small>
+                                    <a href="{% url 'run_scan' img.id %}" class="btn btn-sm btn-outline-premium w-100"><i class="fa-solid fa-radar me-1"></i> Scan Image</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5 px-3">
+                            <i class="fa-regular fa-image text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-3">No images found in your vault.</p>
+                            <a href="{% url 'upload_image' %}" class="btn btn-sm btn-premium">Upload one</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scan Results Main Area -->
+    <div class="col-md-8">
+        <div class="card-premium">
+            <div class="card-header-premium d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Recent Scan Results</h5>
+                {% if results %}
+                    <span class="badge bg-light text-dark border">{{ results|length }} Activities</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-4 bg-light">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-premium w-100">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Source</th>
+                                    <th>Platform</th>
+                                    <th>Match Confidence</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for res in results %}
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            {% if res.is_leaked %}
+                                                <span class="badge-premium-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Leaked</span>
+                                            {% else %}
+                                                <span class="badge-premium-success"><i class="fa-solid fa-shield-check me-1"></i>Safe</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <img src="{{ res.target_image.image.url }}" class="rounded shadow-sm" style="width: 45px; height: 45px; object-fit: cover;" title="Your Original Image">
+                                        </td>
+                                        <td><strong class="text-dark">{{ res.source_app_name }}</strong></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress progress-premium flex-grow-1 me-2" style="height: 6px;">
+                                                    <div class="progress-bar {% if res.confidence_score > 80 %}bg-danger{% elif res.confidence_score > 50 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ res.confidence_score }}%;"></div>
+                                                </div>
+                                                <small class="fw-bold {% if res.confidence_score > 80 %}text-danger{% elif res.confidence_score > 50 %}text-warning{% else %}text-success{% endif %}">{{ res.confidence_score }}%</small>
+                                            </div>
+                                            <small class="text-muted d-block mt-1">{{ res.scan_date|date:"M d, H:i" }}</small>
+                                        </td>
+                                        <td style="white-space: nowrap; min-width: 200px;">
+                                            {% if res.is_leaked %}
+                                                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                                                    <a href="{{ res.matched_image_path }}" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3" style="font-size: 0.75rem;">
+                                                        <i class="fa-solid fa-eye me-1"></i> View Match
+                                                    </a>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted text-center d-block">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fa-solid fa-fingerprint text-muted" style="font-size: 3.5rem; opacity: 0.5;"></i>
+                        </div>
+                        <h5 class="fw-bold">No Scans Performed Yet</h5>
+                        <p class="text-muted">Select an image from your vault to initiate a deep web scan.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .hover-bg-light:hover { background-color: rgba(0,0,0,0.015); }
+    .transition-all { transition: all 0.2s ease; }
+</style>
+{% endblock %}
